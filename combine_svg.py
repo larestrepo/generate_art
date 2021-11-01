@@ -40,11 +40,26 @@ def create_svg(height, width,output_format,max_combinations):
             attributes.append(str(item[2]))
             file = open(path_to_file,"r")
             section_file.append(file.read())
+        
+        # path_to_file = './layers/1_backgrounds/Background10_VerdeAmazonita.txt'
+        # file = open(path_to_file,"r")
+        # section_file.append(file.read())
+        # path_to_file = './layers/2_additionals/Adicional00_Destello.txt'
+        # file = open(path_to_file,"r")
+        # section_file.append(file.read())
+        # path_to_file = './layers/3_gallery/Gallery00_Negro.txt'
+        # file = open(path_to_file,"r")
+        # section_file.append(file.read())
+        # path_to_file = './layers/4_moxie/Moxie06_Enraizado.txt'
+        # file = open(path_to_file,"r")
+        # section_file.append(file.read())
+
         #Assigning variables
         background = section_file[0]
         additional = section_file[1]
         gallery = section_file[2]
         moxie = section_file[3]
+        print(combination)
 
         #Building the content
         content_svg = (
@@ -89,13 +104,20 @@ def create_svg(height, width,output_format,max_combinations):
             svg_file.close
         elif output_format == 'png':
             from cairosvg.surface import PNGSurface
-            name = './results_png/' + str(file_counter) + '_' + str(hexa_content)
-            PNGSurface.convert(
-            bytestring=content_svg,
-            width=width,
-            height=height,
-            write_to=open(name + '.png', 'wb')
-            )
+            try:
+                name = './results_png/' + str(file_counter) + '_' + str(hexa_content)
+                #name = './results_png/test'
+                PNGSurface.convert(
+                bytestring=content_svg,
+                width=width,
+                height=height,
+                write_to=open(name + '.png', 'wb')
+                )
+            except:
+                name = './results_svg/' + str(file_counter) + '_' + str(hexa_content)
+                svg_file = open(name + ".svg","w")
+                svg_file.write(content_svg)
+                svg_file.close
 
         # Saving the metadata
         with open(name + ".json","w") as file:
@@ -106,4 +128,4 @@ def create_svg(height, width,output_format,max_combinations):
         file_counter +=1
 
 if __name__ == '__main__':
-    create_svg(1000,1000,'svg',1)
+    create_svg(1000,1000,'png',0)
