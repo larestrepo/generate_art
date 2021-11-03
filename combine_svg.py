@@ -29,6 +29,7 @@ def create_svg(height, width,output_format,max_combinations):
             num_items.append(list(range(1,len(items))))
             list_items.append(items)
         j+=1
+    print(num_items,j)
     
     file_counter = 1
     for combination in product(*list_items):
