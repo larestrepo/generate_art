@@ -1,7 +1,9 @@
 .vscode
 layers
+layers2
 combinations.txt
 image_to_svg
 templates
 results_svg
 results_png
+results_cherry_png

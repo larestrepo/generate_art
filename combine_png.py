@@ -1,25 +1,70 @@
 
 from PIL import Image
+import os
+from itertools import product
+import json
+import hashlib
+
+def save_files(path, name, rgb_im):
+    if not os.path.exists(path):
+        os.makedirs(path)
+    rgb_im.save(name + ".png")
   
-def main():
+def create_png(max_combinations):
     try:
-        #Relative Path
-        #Image on which we want to paste
-        img = Image.open("./layers/background/MoxieGalleryFondos_0009_Capa-1.png") 
-          
-        #Relative Path
-        #Image which we want to paste
-        img2 = Image.open("./layers/Gallery/Gallery00.png")
-        mask_im = Image.open('./layers/Gallery/Gallery00.png').resize(img2.size).convert('RGBA')
-        back_im = img.copy()
-        back_im.paste(img2, (100, 50), mask_im)
-        # img.paste(img2  z, (50, 50))
-          
-        #Saved in the same relative location
-        back_im.save("pasted_picture.png")
-          
+        directory = './layers2'
+        list_items = []
+        num_items = []
+        j=0
+        for root, dirs, files in os.walk(directory):
+            for _ in enumerate(root):
+                
+                items=[]
+                for filename in files:
+                    # items.append(str(filename))
+                    items.append(os.path.join(root,filename))
+            if items!=[]:
+                num_items.append(list(range(1,len(items))))
+                list_items.append(items)
+            j+=1
+        list_items.sort()
+        file_counter = 1
+        for combination in product(*list_items):
+            attributes = []
+            item0 = combination[0].strip('.png').split('/')[-1]
+            attributes.append(item0)
+            com = Image.open(combination[0]).convert('RGBA')
+            for i in list(range(1,j-1)):
+                img2 = Image.open(combination[i]).convert('RGBA')
+                com = Image.alpha_composite(com, img2)
+                attributes.append(combination[i].strip('.png').split('/')[-1])
+            rgb_im = com.convert('RGB')
+            #Hashing the content
+            hash_content = hashlib.sha1(str(com.info).encode()).hexdigest()
+                
+            #Building the metadata info
+            metadata = {}
+            metadata["ID"] = hash_content
+            metadata["Attributes"] = {
+                "Background": attributes[0],
+                "Cherry": attributes[1],
+                "Leaf": attributes[2],
+                "Decor": attributes[3]
+            }
+            path = './results_cherry_png/'
+            file_name = path + str(file_counter) + '_' + str(hash_content)
+            save_files(path,file_name,rgb_im)
+
+            # Saving the metadata
+            with open(file_name + ".json","w") as file:
+                json.dump(metadata,file, indent=4)
+            if max_combinations >=1:
+                if file_counter==max_combinations:
+                    break
+            file_counter +=1
+
     except IOError:
-        pass
+        print('error')
   
 if __name__ == "__main__":
-    main()
+    create_png(0)
